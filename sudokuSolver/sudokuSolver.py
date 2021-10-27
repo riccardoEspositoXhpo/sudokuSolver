@@ -14,29 +14,45 @@ solutions = 0
 GRID_SIZE = 9
 BOX_SIZE = 3
 
-# solve the puzzle
+# initialize options array of sudoku size with 9 possible options for each cell
+options = [[set() for i in range(9)] for i in range(9)]
+
+
 def main():
-    # print initial puzzle state
-    
+
+    global options
+
     startTime = time.time()
-
     fileName = "sudokuMini.csv"
-
 
     importPuzzles(fileName)
 
+    pTimer = 0
+    bTimer = 0
+
     for i in  range(len(grids)):
-
-        # I want to limit the size of the problem first
-        # I the puzzleCleaner
-        #then I pass the result to BruteSovle
+        
+        # clear options array
+        options = [[set() for i in range(9)] for i in range(9)]   
+        
+        # reduce puzzle scope
+        pStart = time.time()
         puzzleCleaner(i)
+        pEnd = time.time()
 
+        pTimer += (pEnd - pStart)
+
+        # apply brute force and backtracking
+        bStart = time.time()
         bruteSolve(i)
+        bEnd = time.time()
+
+        bTimer += (bEnd - bStart)
 
     print(solutions)
     print(len(grids))                
     print("Time Elapsed: " + str(time.time() - startTime) + " seconds")
+    print("Of Which " + str(pTimer) + " second for puzzleCleaner and " + str(bTimer) + "seconds for brute force")
 
 
 def importPuzzles(fileName):
@@ -64,10 +80,11 @@ def importPuzzles(fileName):
     return False
 
 
-# function receives y and x position in the grid and checks if number is allowed
+
 def possibleValues(idx, y, x, n):
     
     global grids
+    # function receives y and x position in the grid idx and checks if n is allowed
 
     # check 1 - does n exist on same row
     for i in range(GRID_SIZE):
@@ -94,16 +111,18 @@ def possibleValues(idx, y, x, n):
 
 def bruteSolve(i):  
 
+    # debugging time stats
+    start = time.time()
+
     global grids
     global solvedGrids
     global options
     global solutions
-    options = []
 
     for y in range(GRID_SIZE):
         for x in range(GRID_SIZE):
             if grids[i][y][x] == 0:
-                for n in range(1, GRID_SIZE + 1):
+                for n in list(options[y][x]):
 
                     # find if a number can be inserted
                     if possibleValues(i, y, x, n):
@@ -120,9 +139,7 @@ def bruteSolve(i):
                 return 
 
     if np.array_equiv(grids[i],solvedGrids[i]):
-        solutions+= 1
-        print(i+1, solutions)
-    
+        solutions+= 1    
     else: 
         print("puzzle ->" + str(i) + " was not solved!")
 
@@ -130,24 +147,26 @@ def bruteSolve(i):
 def puzzleCleaner(i):
 
     global grids
-    # global options
+    global options
 
     for y in range(GRID_SIZE):
         for x in range(GRID_SIZE):
             if grids[i][y][x] == 0:
-                options = []
-                for n in range(1, GRID_SIZE + 1):
+                for n in range(1, 10):
                     if possibleValues(i, y, x, n):
                         
-                        options.append(n)
+                        options[y][x].add(n)
+        
+                if len(options[y][x]) == 1:
+                    s = options[y][x]
+                    for e in s:
+                        break
 
-                if len(options) == 1:
-                    
-                    grids[i][y][x] = options[0]
+                    grids[i][y][x] = e
                     
                     # recursively call function to find unique matches
                     puzzleCleaner(i)
-    
+
     return
 
 
