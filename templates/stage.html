@@ -6,7 +6,8 @@
         <link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap' rel='stylesheet'>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
         <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css' integrity='sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2' crossorigin='anonymous'>
-        <script src='https://code.jquery.com/jquery-3.5.1.slim.min.js' integrity='sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj' crossorigin='anonymous'></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+        <script src='/static/stage.js'></script>
         <link href="/static/styles.css" rel="stylesheet">
         <title>Sudoku Solver</title>
     </head>
@@ -15,92 +16,75 @@
             <h1>Sudoku Solver</h1>
         </div>
         <div class='container'>
-            <div class='section'>
+            <h2>Do the grids match?</h2>
+            <p></p>
+            <h3>Please correct any mismatches in the table and press Continue to solve the puzzle.</h3>
+            <div class='row'>
+                <div class = 'col-md-6 col-sm-6'>
+                    <img src="/static/images/{{fileName}}" class = 'img-fluid' style = 'max-height: 70%'/>
+                </div>
+                <div class = 'col-md-6 col-sm-6'>
+                    <table class = 'sudokuTable' id = 'inputPuzzle' name = 'inputPuzzle'>
+                        <colgroup><col><col><col>
+                        <colgroup><col><col><col>
+                        <colgroup><col><col><col>   
+                        <tbody>
+                        {% for row in rawPuzzle[:3] %}
+                                <tr>
+                                    {% for num in row %}  
 
-                <h2>Does the grid match?</h2>
+                                        {% if num == 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">
+                                        {% endif %}
+                                        {% if num != 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">{{num}}
+                                        {% endif %}
+                                    {% endfor %}
+                                
+                        {% endfor %}
+                        </tdbody>
+                        <tbody>
+                        {% for row in rawPuzzle[3:6] %}
+                                <tr>
+                                    {% for num in row %}  
 
-                <img src="/static/images/{{fileName}}" class = 'img-fluid'/>
-                <p></p>
-                <table class = 'sudokuTable'>
-                    <caption>Processed Puzzle</caption>
-                    <colgroup><col><col><col>
-                    <colgroup><col><col><col>
-                    <colgroup><col><col><col>   
+                                        {% if num == 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">
+                                        {% endif %}
+                                        {% if num != 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">{{num}}
+                                        {% endif %}                                        
+                                    {% endfor %}   
+                        {% endfor %}
+                        </tdbody>
+                        <tbody>
+                        {% for row in rawPuzzle[6:9] %}
+                                <tr>
+                                    {% for num in row %}  
 
-                    <tbody>
-                    {% for row in rawPuzzle[:3] %}
-                            <tr>
-                                {% for num in row %}  
+                                        {% if num == 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">
+                                        {% endif %}
+                                        {% if num != 0 %}
+                                            <td contenteditable='true' oncopy="return false" oncut="return false" onpaste="return false">{{num}}
+                                        {% endif %}
 
-                                    {% if num == 0 %}
-                                        <td contenteditable='true'>
-                                    {% endif %}
-                                    {% if num != 0 %}
-                                        <td contenteditable='true'>{{num}}
-                                    {% endif %}
                                 {% endfor %}
-                            
-                    {% endfor %}
-                    <tbody>
-                    {% for row in rawPuzzle[3:6] %}
-                        
-                            <tr>
-                                {% for num in row %}  
-
-                                    {% if num == 0 %}
-                                        <td contenteditable='true'>
-                                    {% endif %}
-                                    {% if num != 0 %}
-                                        <td contenteditable='true'>{{num}}
-                                    {% endif %}                                        
-                                {% endfor %}
-                            
-                    {% endfor %}
-                    <tbody>
-                    {% for row in rawPuzzle[6:9] %}
-                        
-                            <tr>
-                                {% for num in row %}  
-
-                                    {% if num == 0 %}
-                                        <td contenteditable='true'>
-                                    {% endif %}
-                                    {% if num != 0 %}
-                                        <td contenteditable='true'>{{num}}
-                                    {% endif %}
-
-                               {% endfor %}
-                            
-                    {% endfor %}
-                </table>
-                <table>
-                    <caption>Sudoku of the day</caption>
-                    <colgroup><col><col><col>
-                    <colgroup><col><col><col>
-                    <colgroup><col><col><col>
-                    <tbody>
-                     <tr> <td>1 <td>  <td>3 <td>6 <td>  <td>4 <td>7 <td>  <td>9
-                     <tr> <td>  <td>2 <td>  <td>  <td>9 <td>  <td>  <td>1 <td>
-                     <tr> <td>7 <td>  <td>  <td>  <td>  <td>  <td>  <td>  <td>6
-                    <tbody>
-                     <tr> <td>2 <td>  <td>4 <td>  <td>3 <td>  <td>9 <td>  <td>8
-                     <tr> <td>  <td>  <td>  <td>  <td>  <td>  <td>  <td>  <td>
-                     <tr> <td>5 <td>  <td>  <td>9 <td>  <td>7 <td>  <td>  <td>1
-                    <tbody>
-                     <tr> <td>6 <td>  <td>  <td>  <td>5 <td>  <td>  <td>  <td>2
-                     <tr> <td>  <td>  <td>  <td>  <td>7 <td>  <td>  <td>  <td>
-                     <tr> <td>9 <td>  <td>  <td>8 <td>  <td>2 <td>  <td>  <td>5
-                  </table>
-                
+                                
+                        {% endfor %}
+                        </tdbody>
+                    </table>
+                </div>                 
             </div>
+            <form action = '/stage' method = 'post'>
+                <div class="input-group d-grid gap-2 col-6 mx-auto">
+                    <button type="submit" class="btn btn-secondary btn-lg">Continue: Looks Good!</button>
+                </div>
+            </form>
+        <p id="info"></p>
         </div>
-                
-                <p></p>
-                <form action = '/stage' method = 'post' enctype = 'multipart/form-data'>
-                    <div class="input-group">
-                        <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Looks Good!</button>
-                    </div>
-                </form>
+           
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        
     </body>
 </html>

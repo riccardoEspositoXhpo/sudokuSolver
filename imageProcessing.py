@@ -162,7 +162,7 @@ def cropImage(fileName):
     processed_sudoku = processing(img)
     sudoku = findCorners(processed_sudoku)
     transformed =  perspectiveTransform(img, sudoku)
-    cropped = 'images/cropped_img.png'
+    cropped = 'static/images/cropped_img.png'
     cv2.imwrite(cropped, transformed)
     transformed = cv2.resize(transformed, (2250, 2250))
     sudoku = createImageGrid(transformed)
