@@ -7,21 +7,23 @@ $('[contenteditable="true"]').keypress(function(e) {
 });
 
 
-
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('form').onsubmit = function() {
+    document.querySelector('form').onsubmit = function(e) {
     
-        document.getElementById('info').innerHTML = "";
+        // make sure page is reloaded to capture any user changes
+        location.reload();
         var inputPuzzle = document.getElementById('inputPuzzle');
 
         puzzleArray = new Array()
+
+        // grab all the cells in the puzzle and fill in gaps with 0
         for (let row of inputPuzzle.rows) 
         {
             line = []
             for(let cell of row.cells) 
             {   
                 data = cell.innerText
-                if (data == ''){
+                if (data == '' || data == 'None'){
                     data = 0
                 }
                 else {
@@ -31,15 +33,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             puzzleArray.push(line)
             
-        }
-        // ALLORA check on the website she calls some element info, so you can steal the html from it!!!
-        
+        }      
 
+        // post request to flask with required data
         $.ajax({
-            type: "POST", 
-            url: "http://127.0.0.1:5000/stage", //localhost Flask
-            data : JSON.stringify(puzzleArray),
+            type: 'POST',
+            url: '/stage',
+            data: JSON.stringify(puzzleArray),
+            success: function(data) { alert('data: ' + data); },
             contentType: "application/json",
+            dataType: 'json'
         });
         
         return;

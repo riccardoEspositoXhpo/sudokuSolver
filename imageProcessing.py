@@ -12,6 +12,7 @@ from settings import GRID_SIZE
 
 
 def processing(img, skip_dilate=False):
+    
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     process = cv2.GaussianBlur(img.copy(), (9, 9), 0)
     process = cv2.adaptiveThreshold(process, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
@@ -25,6 +26,7 @@ def processing(img, skip_dilate=False):
 
 
 def findCorners(img):
+    
     ext_contours = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     ext_contours = ext_contours[0] if len(ext_contours) == 2 else ext_contours[1]
     ext_contours = sorted(ext_contours, key=cv2.contourArea, reverse=True)
@@ -55,6 +57,8 @@ def order_corner_points(corners):
 
 
 def perspectiveTransform(image, corners):
+
+    # order the corners dynamically
     ordered_corners = order_corner_points(corners)
     top_l, top_r, bottom_r, bottom_l = ordered_corners
 
@@ -95,12 +99,14 @@ def createImageGrid(img):
     grid = cv2.bitwise_not(grid,grid)
 
     tempgrid = []
+
     for i in range(celledge_h, edge_h + 1, celledge_h):
         for j in range(celledge_w, edge_w + 1, celledge_w):
             rows = grid[i - celledge_h:i]
             tempgrid.append([rows[k][j - celledge_w:j] for k in range(len(rows))])
 
     finalgrid = []
+
     for i in range(0, len(tempgrid) - 8, 9):
         finalgrid.append(tempgrid[i:i + 9])
 
@@ -114,6 +120,7 @@ def createImageGrid(img):
                 np.os.remove("board/cell" + str(i) + str(j) + ".jpg")
     except:
         pass
+
     for i in range(GRID_SIZE):
         for j in range(GRID_SIZE):
             cv2.imwrite(str("board/cell" + str(i) + str(j) + ".jpg"), finalgrid[i][j])
@@ -159,17 +166,25 @@ def scaleAndCenter(img, size, margin=20, background=0):
 def cropImage(fileName):
 
     img = cv2.imread(fileName)
+
+    # apply Gaussian blur 
     processed_sudoku = processing(img)
+
+    # find cimage corners
     sudoku = findCorners(processed_sudoku)
+
+    # dynamically rotate image
     transformed =  perspectiveTransform(img, sudoku)
+
+    # save processed image
     cropped = 'static/images/cropped_img.png'
     cv2.imwrite(cropped, transformed)
+    
+    # resize image
     transformed = cv2.resize(transformed, (2250, 2250))
+    
+    # split the image into 81 images, one for each cell, and save 
     sudoku = createImageGrid(transformed)
 
     return sudoku
     
-
-# if __name__ == '__main__':
-#     fileName = 'images/sudokuTest.jpeg'
-#     cropImage(fileName)

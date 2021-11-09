@@ -1,0 +1,6 @@
+Flask==2.0.2
+matplotlib==3.4.3
+numpy==1.21.3
+opencv_python==4.5.4.58
+pytesseract==0.3.8
+Werkzeug==2.0.2

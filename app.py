@@ -34,7 +34,6 @@ def allowed_file(filename):
 @app.route("/", methods=["GET", "POST"])
 def index():
 
-
     # clean lingering files
     cleanFiles()
 
@@ -71,7 +70,7 @@ def index():
             # remember fileName for other routes
             session['fileName'] = filename
 
-            # # crops the image to just show the grid
+            # crops the image to just show the grid
             croppedImage = cropImage('static/images/'+ filename)
             print("Image Grid Cropped. Time: {} seconds.".format(time.time() - startTime))
 
@@ -82,49 +81,89 @@ def index():
             # construct a sudoku array by interpreting the numbers on the page
             rawPuzzle = buildPuzzleFromImage()
             
+            # save data for next route
             session['rawPuzzle'] = rawPuzzle
-            print("Puzzle Built.")
+
+            print("Puzzle Built. Time: {} seconds.".format(time.time() - startTime))
             
             return redirect("/stage")
         
     else:
 
-        # if I am getting this page I need to render the homePage
         return render_template("index.html")
 
 
 @app.route("/stage", methods=["GET", "POST"])
 def stage():
 
-    # clean lingering files
-    cleanFiles()
+    global solvedGrid
+
+    if request.method == "GET":
+
+        message = ''
+
+        # clean lingering files
+        cleanFiles()
+
+        fileName = session.get('fileName', None)
+        rawPuzzle = session.get('rawPuzzle', None)
+
+        if isPuzzleValid(rawPuzzle) == False:
+
+            message = 'We have detected an inconsistency with number recognition. Please amend puzzle before proceeding.'
+                
+        return render_template("stage.html", fileName = fileName, rawPuzzle = rawPuzzle, message = message)
+   
+    elif request.method == "POST":
+
+        fileName = session.get('fileName', None)
+        rawPuzzle = session.get('rawPuzzle', None)
+        message = 'The puzzle has been solved!'
+                   
+        webPuzzle = request.get_json()
+        print(webPuzzle)
+        
+        # the post request is being sent twice, the second time with a value of None
+        if webPuzzle != None:
+            
+            if isPuzzleValid(webPuzzle) == True:
+                
+                rawPuzzle = webPuzzle
+
+                # reduce puzzle scope
+                grid, options =  puzzleCleaner(rawPuzzle)
+
+                # apply brute force and backtracking to solve puzzle
+                bruteSolve(grid,options)
+            
+            else:
+                message = 'The puzzle provided is not valid and cannot be solved.'
+                return redirect("/solved")
+
+        # there are two requests arriving simultaenously, we allow for the block of code above to execute
+        time.sleep(2)
+        session['message'] = message
+        
+        return redirect("/solved")
+
+
+@app.route("/solved", methods=["GET"])
+def solved():
+
+    global solvedGrid
 
     fileName = session.get('fileName', None)
-    rawPuzzle = session.get('rawPuzzle', None)
+    message = session.get('message', None)
 
-    if request.method == "POST":
-
-        if request.get_json():
-            rawPuzzle = request.get_json() 
-
-
-        # reduce puzzle scope
-        grid, options =  puzzleCleaner(rawPuzzle)
-
-        # apply brute force and backtracking to solve puzzle
-        bruteSolve(grid,options)
-        print(solvedGrid)
-
-        return render_template("stage.html", fileName = fileName, rawPuzzle = solvedGrid)
-
-    else:
-
-        return render_template("stage.html", fileName = fileName, rawPuzzle = rawPuzzle)
-
+    return render_template("solved.html", fileName = fileName, rawPuzzle = solvedGrid, message = message)
 
 
 '''---------------------------------------------------------------------------------------------------'''
+
 def puzzleCleaner(grid):
+
+    if grid == None:
+        return None, None
 
     options = [[set() for i in range(9)] for i in range(9)]   
 
@@ -136,23 +175,14 @@ def puzzleCleaner(grid):
                         
                         options[y][x].add(n)
         
-                '''My solver logic was stupid. I need to implement some intelligent checks se ho balle
-                    I think the plan is to first grab the options and then fiddle with them to reduce the scope further.
-                    This should be worth a few brownie points. penseró a magical sudoku techniques '''
-                # if len(options[y][x]) == 1:
-                #     s = options[y][x]
-                #     for e in s:
-                #         break
-
-                #     grid[y][x] = e
-                    
-                #     # recursively call function to find unique matches
-                #     puzzleCleaner(grid)
     
     return grid, options
 
 
 def bruteSolve(grid,options):  
+
+    if grid == None or options == None:
+        return None
 
     global solvedGrid
 
@@ -213,3 +243,20 @@ def cleanFiles():
     
     for f in glob.glob('board/*'):
         os.remove(f)
+
+def isPuzzleValid(puzzle):
+
+    # safety check for empty puzzles
+    if puzzle == None:
+        return True
+
+    for y in range(GRID_SIZE):
+        for x in range(GRID_SIZE):
+            
+            validPuzzle = False
+            for n in range(1, 10):
+
+                validPuzzle = validPuzzle or possibleValues(puzzle, y, x, n)
+
+
+    return validPuzzle

@@ -11,19 +11,31 @@
         <title>Sudoku Solver</title>
     </head>
     <body>
-        <div class='jumbotron'>
-            <h1>Sudoku Solver</h1>
+        <div class="jumbotron">
+            <p><h1>Welcome to the Sudoku Solver</h1></p>
         </div>
         <div class='container'>
             <div class='section'>
 
                 <h2>Input a Sudoku Image!</h2>
+                <p></p>
+                <p></p>
                 <form action = '/' method = 'post' enctype = 'multipart/form-data'>
                     <div class="input-group">
                         <input type="file" name = 'file' class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Upload">
                         <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Upload</button>
                     </div>
                 </form>
+                <div>
+                    <p></p>
+                    <p></p>
+                    <p></p>
+                    <h6><li>Upload a sudoku image of your choosing either in .png, .jpg or .jpeg format.</li></h6>
+                    <h6><li>Wait for the solver to recognize the numbers and print out the predicted grid.</li></h6>
+                    <h6><li>Ensure the input grid and the recognized grid are the same. If they are not, feel free to edit.</li></h6>
+                    <h6><li>Enjoy!</li></h6>
+                    
+                </div>
             </div>        
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>

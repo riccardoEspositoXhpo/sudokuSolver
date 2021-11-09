@@ -13,6 +13,7 @@ from settings import GRID_SIZE
 from imageProcessing import scaleAndCenter
 
 
+# for Windows users
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
 
 
@@ -30,7 +31,7 @@ def extractNumberFromImage(img_grid):
         for j in range(GRID_SIZE):
 
             image = img_grid[i][j]
-            image = cv2.resize(image, (280, 280))
+            image = cv2.resize(image, (140, 140))
             
             thresh = 127  # mid point between 0 and 255
             
@@ -39,8 +40,8 @@ def extractNumberFromImage(img_grid):
             gray = cv2.threshold(image, thresh, 255, cv2.THRESH_BINARY)[1]
             
             # a typical processed sudoku square will contain borders. We eliminate them to simplify contour finding
-            cutoff = 19 # 5% of size
-            grayCropped = gray[cutoff:280-cutoff,cutoff:280-cutoff]
+            cutoff = 9 # 5% of size
+            grayCropped = gray[cutoff:140-cutoff,cutoff:140-cutoff]
 
             # Find contours
             cnts = cv2.findContours(grayCropped, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -50,11 +51,10 @@ def extractNumberFromImage(img_grid):
             for c in cnts:
                 x, y, w, h = cv2.boundingRect(c)
 
-                if (x < 20 or y < 20 or h < 20 or w < 20):
+                if (x < 10 or y < 10 or h < 10 or w < 10):
                     # Note the number is always placed in the center
-                    # Since image is 280x280
-                    # the number will be in the center thus x >30 and y>30
-                    # Additionally any of the external lines of the sudoku will not be thicker than 30
+                    # Since image is 140 x 140
+                    # the number will be in the center
                     continue
                 ROI = grayCropped[y:y + h, x:x + w]
                 ROI = scaleAndCenter(ROI, 120)
@@ -108,9 +108,11 @@ def buildPuzzleFromImage():
 
                 except ValueError:
                     number = 0
+                
+                # Sources for image recognition
                 # https://stackoverflow.com/questions/42881884/python-read-number-in-image-with-pytesseract
                 # https://github.com/tesseract-ocr/tesseract/issues/3110 
-                # magic trick stolen from here including page separators
+
                 sudoku[i][j] = number
 
     return sudoku
