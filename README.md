@@ -67,8 +67,6 @@ pip install -r requirements.txt
 
 ```
 
-* Modify your directory in settings.py. This is needed for users to upload files 
-
 * Run from command line:
 
 ```
